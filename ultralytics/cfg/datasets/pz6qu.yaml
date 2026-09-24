@@ -1,0 +1,15 @@
+ch: 9
+
+path: /media/ddc/新加卷/hys/qmy/pz # dataset root dir
+train: qutrain.txt  # train images (relative to 'path')
+val: quval.txt  # val images (relative to 'path')
+# test: test.txt  # submit to https://competitions.codalab.org/competitions/20794
+
+# Classes
+names:
+  0: Pedestrian
+  1: Car
+  2: Cyclist
+  3: Truck
+  4: Bus
+  5: Tricycle

@@ -1,0 +1,14 @@
+ch: 4
+
+path: F:\data_use\data_all # dataset root dir
+train: train.txt  # train images (relative to 'path')
+val: val.txt  # val images (relative to 'path')
+# test: test.txt  # submit to https://competitions.codalab.org/competitions/20794
+
+# Classes
+names:
+  0: Car
+  1: Cyclist
+  2: Pedestrian
+  3: Bus
+  4: Truck

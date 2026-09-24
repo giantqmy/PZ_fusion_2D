@@ -1,0 +1,14 @@
+ch: 8
+
+path: F:\NEW\4PATH\dataset_low # dataset root dir 这个要改一下
+train: train.txt  # train images (relative to 'path')
+val: val.txt  # val images (relative to 'path')
+# test: test.txt  # submit to https://competitions.codalab.org/competitions/20794
+
+# Classes
+names:
+  0: Car
+  1: Cyclist
+  2: Pedestrian
+  3: Bus
+  4: Truck

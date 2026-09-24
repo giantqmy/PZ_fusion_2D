@@ -1,0 +1,39 @@
+# Ultralytics AGPL-3.0 License
+# The loader provides 9 channels; channel1 only selects RGB intensity and RGB DoLP.
+
+ch: 9
+nc: 80  # Overridden by the dataset class count during training.
+
+scales:
+  # [depth, width, max_channels]
+  n: [0.50, 0.25, 1024]
+
+# Parameter-free RGB-intensity/DoLP selector followed by four backbone stages.
+# Stage args: [channels, topk, n_win, stage_id, ConvNeXt depth, downsample stride].
+# The n model uses lightweight depths [1, 1, 2, 1].
+backbone:
+  - [-1, 1, channel1, []]  # Select RGB(3) + DoLP(1), keep HxW
+  - [-1, 1, ChannelSplitBlockFusion, [128, 1, 8, 0, 1, 4]]  # Stage 1: P2/4
+  - [-1, 1, ChannelSplitBlockFusion, [256, 2, 8, 1, 1, 2]]  # Stage 2: P3/8
+  - [-1, 1, ChannelSplitBlockFusion, [512, 4, 4, 2, 2, 2]]  # Stage 3: P4/16
+  - [-1, 1, ChannelSplitBlockFusion, [1024, 16, 4, 3, 1, 2]]  # Stage 4: P5/32
+
+# Official YOLO11 PAN-FPN detection head.
+head:
+  - [-1, 1, nn.Upsample, [None, 2, "nearest"]]
+  - [[-1, 3], 1, Concat, [1]]  # P5 upsample + backbone P4
+  - [-1, 2, C3k2, [512, False]]  # layer 7: head P4
+
+  - [-1, 1, nn.Upsample, [None, 2, "nearest"]]
+  - [[-1, 2], 1, Concat, [1]]  # head P4 upsample + backbone P3
+  - [-1, 2, C3k2, [256, False]]  # layer 10: P3/8-small
+
+  - [-1, 1, Conv, [256, 3, 2]]
+  - [[-1, 7], 1, Concat, [1]]
+  - [-1, 2, C3k2, [512, False]]  # layer 13: P4/16-medium
+
+  - [-1, 1, Conv, [512, 3, 2]]
+  - [[-1, 4], 1, Concat, [1]]
+  - [-1, 2, C3k2, [1024, True]]  # layer 16: P5/32-large
+
+  - [[10, 13, 16], 1, Detect, [nc]]

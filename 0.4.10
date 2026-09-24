@@ -1,0 +1,32 @@
+Requirement already satisfied: timm in d:\anaconda\envs\pytorch\lib\site-packages (1.0.19)
+Requirement already satisfied: torch in d:\anaconda\envs\pytorch\lib\site-packages (from timm) (2.5.1+cu118)
+Requirement already satisfied: torchvision in d:\anaconda\envs\pytorch\lib\site-packages (from timm) (0.20.1+cu118)
+Requirement already satisfied: pyyaml in d:\anaconda\envs\pytorch\lib\site-packages (from timm) (6.0.2)
+Requirement already satisfied: huggingface_hub in d:\anaconda\envs\pytorch\lib\site-packages (from timm) (0.35.0)
+Requirement already satisfied: safetensors in d:\anaconda\envs\pytorch\lib\site-packages (from timm) (0.6.2)
+Requirement already satisfied: filelock in d:\anaconda\envs\pytorch\lib\site-packages (from huggingface_hub->timm) (3.13.1)
+Requirement already satisfied: fsspec>=2023.5.0 in d:\anaconda\envs\pytorch\lib\site-packages (from huggingface_hub->timm) (2024.6.1)
+Requirement already satisfied: packaging>=20.9 in d:\anaconda\envs\pytorch\lib\site-packages (from huggingface_hub->timm) (24.2)
+Requirement already satisfied: requests in d:\anaconda\envs\pytorch\lib\site-packages (from huggingface_hub->timm) (2.32.3)
+Requirement already satisfied: tqdm>=4.42.1 in d:\anaconda\envs\pytorch\lib\site-packages (from huggingface_hub->timm) (4.67.1)
+Requirement already satisfied: typing-extensions>=3.7.4.3 in d:\anaconda\envs\pytorch\lib\site-packages (from huggingface_hub->timm) (4.12.2)
+Requirement already satisfied: networkx in d:\anaconda\envs\pytorch\lib\site-packages (from torch->timm) (3.2.1)
+Requirement already satisfied: jinja2 in d:\anaconda\envs\pytorch\lib\site-packages (from torch->timm) (3.1.4)
+Collecting sympy==1.13.1 (from torch->timm)
+  Using cached sympy-1.13.1-py3-none-any.whl.metadata (12 kB)
+Requirement already satisfied: mpmath<1.4,>=1.1.0 in d:\anaconda\envs\pytorch\lib\site-packages (from sympy==1.13.1->torch->timm) (1.3.0)
+Requirement already satisfied: numpy in d:\anaconda\envs\pytorch\lib\site-packages (from torchvision->timm) (1.26.3)
+Requirement already satisfied: pillow!=8.3.*,>=5.3.0 in d:\anaconda\envs\pytorch\lib\site-packages (from torchvision->timm) (11.0.0)
+Requirement already satisfied: colorama in d:\anaconda\envs\pytorch\lib\site-packages (from tqdm>=4.42.1->huggingface_hub->timm) (0.4.6)
+Requirement already satisfied: MarkupSafe>=2.0 in d:\anaconda\envs\pytorch\lib\site-packages (from jinja2->torch->timm) (2.1.5)
+Requirement already satisfied: charset-normalizer<4,>=2 in d:\anaconda\envs\pytorch\lib\site-packages (from requests->huggingface_hub->timm) (3.4.2)
+Requirement already satisfied: idna<4,>=2.5 in d:\anaconda\envs\pytorch\lib\site-packages (from requests->huggingface_hub->timm) (3.10)
+Requirement already satisfied: urllib3<3,>=1.21.1 in d:\anaconda\envs\pytorch\lib\site-packages (from requests->huggingface_hub->timm) (1.26.20)
+Requirement already satisfied: certifi>=2017.4.17 in d:\anaconda\envs\pytorch\lib\site-packages (from requests->huggingface_hub->timm) (2025.4.26)
+Using cached sympy-1.13.1-py3-none-any.whl (6.2 MB)
+Installing collected packages: sympy
+  Attempting uninstall: sympy
+    Found existing installation: sympy 1.14.0
+    Uninstalling sympy-1.14.0:
+      Successfully uninstalled sympy-1.14.0
+Successfully installed sympy-1.13.1

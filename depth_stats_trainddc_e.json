@@ -1,0 +1,59 @@
+{
+  "train_list": "E:\\trainddc.txt",
+  "images_dir": "E:\\depth",
+  "listed_images": 5796,
+  "processed_images": 5796,
+  "missing_count": 0,
+  "missing_examples": [],
+  "wrong_dtype_count": 0,
+  "wrong_dtype_examples": [],
+  "shapes": {
+    "(512, 640)": 5796
+  },
+  "zero_count": 1210341890,
+  "zero_ratio": 0.6372792130095782,
+  "all_pixels": {
+    "count": 1899233280,
+    "min": 0,
+    "max": 65535,
+    "mean": 2753.41516308202,
+    "variance_population": 26819365.741782635,
+    "std_population": 5178.741714140862,
+    "percentiles": {
+      "0": 0,
+      "0.1": 0,
+      "1": 0,
+      "5": 0,
+      "25": 0,
+      "50": 0,
+      "75": 2912,
+      "95": 13045,
+      "99": 21272,
+      "99.9": 37663,
+      "100": 65535
+    }
+  },
+  "valid_nonzero_pixels": {
+    "count": 688891390,
+    "min": 174,
+    "max": 65535,
+    "mean": 7591.004601439423,
+    "variance_population": 37217259.4282566,
+    "std_population": 6100.595006083964,
+    "percentiles": {
+      "0": 174,
+      "0.1": 391,
+      "1": 869,
+      "5": 1547,
+      "25": 2417,
+      "50": 6449,
+      "75": 11034,
+      "95": 18784,
+      "99": 27968,
+      "99.9": 40003,
+      "100": 65535
+    }
+  },
+  "nonzero_ge_65000_count": 8535,
+  "nonzero_ge_65000_ratio": 1.2389471147258787e-05
+}
