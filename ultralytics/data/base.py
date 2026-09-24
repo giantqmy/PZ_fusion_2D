@@ -122,7 +122,9 @@ class BaseDataset(Dataset):
 
         # Cache images (options are cache = True, False, None, "ram", "disk")
         self.ims, self.im_hw0, self.im_hw = [None] * self.ni, [None] * self.ni, [None] * self.ni
-        self.npy_files = [Path(f).with_suffix(".npy") for f in self.im_files]
+        self.image_mode = (getattr(self, "data", None) or {}).get("image_mode")
+        npy_suffix = ".rgb_dolp_depth.npy" if self.image_mode == "rgb_dolp_depth" else ".npy"
+        self.npy_files = [Path(f).with_suffix(npy_suffix) for f in self.im_files]
         self.cache = cache.lower() if isinstance(cache, str) else "ram" if cache is True else None
         if self.cache == "ram" and self.check_cache_ram():
             if hyp.deterministic:
@@ -222,14 +224,14 @@ class BaseDataset(Dataset):
                 except Exception as e:
                     LOGGER.warning(f"{self.prefix}WARNING ⚠️ Removing corrupt *.npy image file {fn} due to: {e}")
                     Path(fn).unlink(missing_ok=True)
-                    im = cv2.imread(f)  # BGR
+                    im = getPolarizationImages(f, image_mode=self.image_mode)
             else:  # read image
                 # im = cv2.imread(f)  # BGR
-                im = getPolarizationImages(f)
+                im = getPolarizationImages(f, image_mode=self.image_mode)
             # if im is None:
             #     raise FileNotFoundError(f"Image Not Found {f}")
             if im is None or im.shape[2] != 9:
-                raise ValueError(f"Failed to load 4 polarization channels from: {f}")
+                raise ValueError(f"Failed to load 9 polarization/depth channels from: {f}")
 
 
             h0, w0 = im.shape[:2]  # orig hw
@@ -274,7 +276,7 @@ class BaseDataset(Dataset):
         """Save an image as an *.npy file for faster loading."""
         f = self.npy_files[i]
         if not f.exists():
-            np.save(f.as_posix(), cv2.imread(self.im_files[i]), allow_pickle=False)
+            np.save(f.as_posix(), getPolarizationImages(self.im_files[i], image_mode=self.image_mode), allow_pickle=False)
 
     def check_cache_disk(self, safety_margin=0.5):
         """

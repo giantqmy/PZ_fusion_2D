@@ -115,12 +115,43 @@ def normalize_polarization_batch(images):
 #     return ret_list  # 返回 (H,W,8)
 
 # 8通道
-def getPolarizationImages(base_path):
+def get_rgb_dolp_depth_images(base_path):
+    """Load only RGB S0, RGB DoLP, and uint16 depth into the existing 9-channel layout."""
+    dir_path = os.path.dirname(base_path)
+    clean_name = os.path.splitext(os.path.basename(base_path))[0]
+    rgb_path = os.path.join(dir_path, f"{clean_name}_S0_rgb.png")
+    dolp_path = os.path.join(dir_path, f"{clean_name}_dolp_rgb.png")
+    depth_path = os.path.join(os.path.dirname(dir_path), "depth", f"{clean_name}_depth_dense_u16.png")
+
+    for path in (rgb_path, dolp_path, depth_path):
+        if not os.path.exists(path):
+            raise FileNotFoundError(f"Missing required image: {path}")
+    rgb = cv2.imread(rgb_path, cv2.IMREAD_COLOR)
+    dolp = cv2.imread(dolp_path, cv2.IMREAD_GRAYSCALE)
+    depth = cv2.imread(depth_path, cv2.IMREAD_UNCHANGED)
+    if rgb is None or dolp is None or depth is None:
+        raise ValueError(f"Failed to read RGB, DoLP, or depth for: {base_path}")
+    if depth.ndim != 2 or depth.dtype != np.uint16:
+        raise ValueError(f"Expected uint16 single-channel depth image at {depth_path}, got {depth.shape}, {depth.dtype}")
+    if rgb.shape[:2] != dolp.shape or dolp.shape != depth.shape:
+        raise ValueError(f"RGB, DoLP, and depth sizes differ for: {base_path}")
+
+    # Format reverses all channels: depth -> 0, DoLP -> 4, RGB -> 6..8.
+    image = np.zeros((*dolp.shape, 9), dtype=np.float32)
+    image[..., :3] = cv2.cvtColor(rgb, cv2.COLOR_BGR2RGB)
+    image[..., 4] = dolp
+    image[..., 8] = depth
+    return image
+
+
+def getPolarizationImages(base_path, image_mode=None):
     """
     读取一组 8 通道的偏振-双光数据并堆叠成 (H,W,8)
     通道顺序:
     S0_rgb(3) + S0_nir(1) + DoLP_rgb(1) + DoLP_nir(1) + AoLP_rgb(1) + AoLP_nir(1)
     """
+    if image_mode == "rgb_dolp_depth":
+        return get_rgb_dolp_depth_images(base_path)
     ret_list = None
     
     dir_path = os.path.dirname(base_path)

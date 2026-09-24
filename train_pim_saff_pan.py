@@ -6,9 +6,16 @@ from pathlib import Path
 import torch
 
 from ultralytics import YOLO
+from ultralytics.models.yolo.detect import DetectionTrainer
 
 
 ROOT = Path(__file__).resolve().parent
+
+
+class RGBDoLPDepthTrainer(DetectionTrainer):
+    def build_dataset(self, img_path, mode="train", batch=None):
+        self.data["image_mode"] = "rgb_dolp_depth"
+        return super().build_dataset(img_path, mode, batch)
 
 
 def parse_args():
@@ -30,6 +37,7 @@ def main(args):
     torch.use_deterministic_algorithms(False)
     model = YOLO(ROOT / "ultralytics/cfg/models/11/pz_pim_saff_pan.yaml")
     model.train(
+        trainer=RGBDoLPDepthTrainer,
         data=str(args.data),
         cache=args.cache,
         imgsz=args.imgsz,
