@@ -998,31 +998,41 @@ class ChannelSplitPIMStage(nn.Module):
         block_id=0,
         convnext_depth=1,
         downsample_stride=2,
+        two_step_stem=False,
     ):
         super().__init__()
         assert dim % 2 == 0, f"dim should be even to split equally, got {dim}"
         assert downsample_stride in (2, 4), f"downsample_stride must be 2 or 4, got {downsample_stride}"
+        assert not two_step_stem or downsample_stride == 4, "two_step_stem requires downsample_stride=4"
         assert convnext_depth >= 1, f"convnext_depth must be positive, got {convnext_depth}"
 
         branch1_in, branch2_in = (3, 1) if c_in == 4 else (c_in // 2, c_in // 2)
         assert branch1_in + branch2_in == c_in, f"cannot split {c_in} input channels into two branches"
         half_out = dim // 2
-        kernel_size = downsample_stride
+
+        def make_branch(in_channels):
+            if two_step_stem:
+                stem_channels = max(1, half_out // 2)
+                stem = [
+                    nn.Conv2d(in_channels, stem_channels, 3, stride=2, padding=1, bias=False),
+                    nn.BatchNorm2d(stem_channels),
+                    nn.SiLU(),
+                    nn.Conv2d(stem_channels, half_out, 3, stride=2, padding=1, bias=False),
+                    nn.BatchNorm2d(half_out),
+                    nn.SiLU(),
+                ]
+            else:
+                stem = [
+                    nn.Conv2d(in_channels, half_out, downsample_stride, stride=downsample_stride, bias=False),
+                    nn.BatchNorm2d(half_out),
+                    nn.SiLU(),
+                ]
+            return nn.Sequential(*stem, *(ConvNeXtBlock(half_out) for _ in range(convnext_depth)))
 
         self.block_id = block_id
         self.branch_channels = (branch1_in, branch2_in)
-        self.branch1 = nn.Sequential(
-            nn.Conv2d(branch1_in, half_out, kernel_size=kernel_size, stride=downsample_stride, bias=False),
-            nn.BatchNorm2d(half_out),
-            nn.SiLU(),
-            *(ConvNeXtBlock(half_out) for _ in range(convnext_depth)),
-        )
-        self.branch2 = nn.Sequential(
-            nn.Conv2d(branch2_in, half_out, kernel_size=kernel_size, stride=downsample_stride, bias=False),
-            nn.BatchNorm2d(half_out),
-            nn.SiLU(),
-            *(ConvNeXtBlock(half_out) for _ in range(convnext_depth)),
-        )
+        self.branch1 = make_branch(branch1_in)
+        self.branch2 = make_branch(branch2_in)
         self.pim = PIM(dim=half_out)
 
     def forward(self, x):

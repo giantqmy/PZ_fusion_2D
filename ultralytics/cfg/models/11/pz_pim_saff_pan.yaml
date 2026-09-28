@@ -10,13 +10,13 @@ scales:
 
 backbone:
   # [from, repeats, module, args]
-  # PIM stage args: [channels, stage_id, ConvNeXt depth, downsample stride]
+  # PIM stage args: [channels, stage_id, ConvNeXt depth, downsample stride, optional two-step stem]
   # SAFF lateral args: [channels, topk, n_win, KV downsample ratio]
   # DepthGate args: [depth channel after Format(), depth encoder block count, raw-input downsample stride].
   # The data pipeline converts uint16(depth_m * 256) to a global Z-score.
   - [-1, 1, nn.Identity, []]                                  # 0: preserve normalized raw 9-channel input
   - [0, 1, channel1, []]                                      # 1: RGB S0 (3) + DoLP (1)
-  - [-1, 1, ChannelSplitPIMStage, [128, 0, 1, 4]]             # 2: P2/4 PIM backbone state
+  - [-1, 1, ChannelSplitPIMStage, [128, 0, 1, 4, True]]       # 2: P2/4 via two stride-2 convolutions per branch
   - [2, 1, SAFFLateralFusion, [128, 2, 16, 4]]                # 3: P2/4 SAFF lateral
   - [[3, 0], 1, DepthGate, [0, 1, 4]]                         # 4: depth-gated P2 lateral
   - [2, 1, ChannelSplitPIMStage, [256, 1, 1, 2]]              # 5: P3/8 PIM backbone state
