@@ -12,6 +12,7 @@ from .transformer import TransformerBlock
 from .fusion import SelfGuidedFeatureFusionModule as SGFFM
 from .fusion import FeaturePoolingModule as FPM
 from .fusion import PIM
+from .fusion import FeatureAlignmentModule
 from .fusion import SAFF
 from .fusion import FusionDEA
 
@@ -62,7 +63,7 @@ __all__ = (
     "Attention",
     "PSA",
     "SCDown",
-    "TorchVision","ChannelSplitBlock","ChannelSplitBlockFusion","ChannelSplitPIMStage","SAFFLateralFusion","DepthGate",
+    "TorchVision","ChannelSplitBlock","ChannelSplitBlockFusion","ChannelSplitPIMStage","ChannelSplitFAMStage","SAFFLateralFusion","DepthGate",
     "StackedChannelSplitFusion","HyperACE", "channel1"
     "DownsampleConv", 
     "FullPAD_Tunnel"
@@ -1040,6 +1041,62 @@ class ChannelSplitPIMStage(nn.Module):
         x1 = self.branch1(x1)
         x2 = self.branch2(x2)
         x1, x2 = self.pim(x1, x2)
+        return torch.cat([x1, x2], dim=1)
+
+
+class ChannelSplitFAMStage(nn.Module):
+    """Dual-branch ConvNeXt stage using FAM for cross-modal alignment."""
+
+    def __init__(
+        self,
+        c_in,
+        dim=96,
+        block_id=0,
+        convnext_depth=1,
+        downsample_stride=2,
+        two_step_stem=False,
+    ):
+        super().__init__()
+        assert dim % 2 == 0, f"dim should be even to split equally, got {dim}"
+        assert downsample_stride in (2, 4), f"downsample_stride must be 2 or 4, got {downsample_stride}"
+        assert not two_step_stem or downsample_stride == 4, "two_step_stem requires downsample_stride=4"
+        assert convnext_depth >= 1, f"convnext_depth must be positive, got {convnext_depth}"
+
+        branch1_in, branch2_in = (3, 1) if c_in == 4 else (c_in // 2, c_in // 2)
+        assert branch1_in + branch2_in == c_in, f"cannot split {c_in} input channels into two branches"
+        half_out = dim // 2
+
+        def make_branch(in_channels):
+            if two_step_stem:
+                stem_channels = max(1, half_out // 2)
+                stem = [
+                    nn.Conv2d(in_channels, stem_channels, 3, stride=2, padding=1, bias=False),
+                    nn.BatchNorm2d(stem_channels),
+                    nn.SiLU(),
+                    nn.Conv2d(stem_channels, half_out, 3, stride=2, padding=1, bias=False),
+                    nn.BatchNorm2d(half_out),
+                    nn.SiLU(),
+                ]
+            else:
+                stem = [
+                    nn.Conv2d(in_channels, half_out, downsample_stride, stride=downsample_stride, bias=False),
+                    nn.BatchNorm2d(half_out),
+                    nn.SiLU(),
+                ]
+            return nn.Sequential(*stem, *(ConvNeXtBlock(half_out) for _ in range(convnext_depth)))
+
+        self.block_id = block_id
+        self.branch_channels = (branch1_in, branch2_in)
+        self.branch1 = make_branch(branch1_in)
+        self.branch2 = make_branch(branch2_in)
+        # FAM's ``dim`` is the concatenated width of both branches.
+        self.fam = FeatureAlignmentModule(dim=dim, reduction=1)
+
+    def forward(self, x):
+        x1, x2 = torch.split(x, self.branch_channels, dim=1)
+        x1 = self.branch1(x1)
+        x2 = self.branch2(x2)
+        x1, x2 = self.fam(x1, x2)
         return torch.cat([x1, x2], dim=1)
 
 

@@ -58,7 +58,7 @@ from .block import (
     RepVGGDW,
     ResNetLayer,
     SCDown,
-    TorchVision,ChannelSplitBlock,StackedChannelSplitFusion,ChannelSplitBlockFusion,ChannelSplitPIMStage,
+    TorchVision,ChannelSplitBlock,StackedChannelSplitFusion,ChannelSplitBlockFusion,ChannelSplitPIMStage,ChannelSplitFAMStage,
     SAFFLateralFusion,DepthGate,HyperACE,channel1,
     DownsampleConv,
     FullPAD_Tunnel
@@ -182,7 +182,7 @@ __all__ = (
     "PSA",
     "TorchVision",
     "Index",
-    "A2C2f","ChannelSplitBlock","StackedChannelSplitFusion","ChannelSplitBlockFusion","ChannelSplitPIMStage",
+    "A2C2f","ChannelSplitBlock","StackedChannelSplitFusion","ChannelSplitBlockFusion","ChannelSplitPIMStage","ChannelSplitFAMStage",
     "SAFFLateralFusion", "DepthGate", "HyperACE","channel1",
     "DownsampleConv",
     "FullPAD_Tunnel",

@@ -68,7 +68,7 @@ from ultralytics.nn.modules import (
     WorldDetect,
     YOLOEDetect,
     YOLOESegment,
-    v10Detect,ChannelSplitBlock,StackedChannelSplitFusion,ChannelSplitBlockFusion,ChannelSplitPIMStage,
+    v10Detect,ChannelSplitBlock,StackedChannelSplitFusion,ChannelSplitBlockFusion,ChannelSplitPIMStage,ChannelSplitFAMStage,
     SAFFLateralFusion,DepthGate,HyperACE,channel1,
     DownsampleConv,
     FullPAD_Tunnel,DEA
@@ -1401,7 +1401,7 @@ def parse_model(d, ch, verbose=True):  # model_dict, input_channels(3)
             PSA,
             SCDown,
             C2fCIB,
-            A2C2f,ChannelSplitBlock,StackedChannelSplitFusion,ChannelSplitBlockFusion,ChannelSplitPIMStage,
+            A2C2f,ChannelSplitBlock,StackedChannelSplitFusion,ChannelSplitBlockFusion,ChannelSplitPIMStage,ChannelSplitFAMStage,
             SAFFLateralFusion,DSConv,DEA
         }
     )
