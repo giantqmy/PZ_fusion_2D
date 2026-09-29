@@ -720,6 +720,11 @@ def plot_images(
     if isinstance(batch_idx, torch.Tensor):
         batch_idx = batch_idx.cpu().numpy()
 
+    # The polarization/depth loader supplies [depth, ..., B, G, R] after Format.
+    # Plot the actual RGB channels instead of treating depth and padding channels as color.
+    if images.ndim == 4 and images.shape[1] == 9:
+        images = images[:, [6, 7, 8], :, :]
+
     bs, _, h, w = images.shape  # batch size, _, height, width
     bs = min(bs, max_subplots)  # limit plot images
     ns = np.ceil(bs**0.5)  # number of subplots (square)
@@ -727,7 +732,7 @@ def plot_images(
         images *= 255  # de-normalise (optional)
 
     # Build Image
-    mosaic = np.full((int(ns * h), int(ns * w), 9), 255, dtype=np.uint8)  # init
+    mosaic = np.full((int(ns * h), int(ns * w), 3), 255, dtype=np.uint8)  # init
     for i in range(bs):
         x, y = int(w * (i // ns)), int(h * (i % ns))  # block origin
         mosaic[y : y + h, x : x + w, :] = images[i].transpose(1, 2, 0)
